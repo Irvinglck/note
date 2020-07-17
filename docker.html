@@ -1,0 +1,125 @@
+docker学习
+
+一：
+	镜像（image）:
+		docker好比一个模板，通过这个模板来创建一个容器，tomcat镜像==》run==>容器（提供服务）
+		一个镜像可以创建多个容器（服务就是运行在容器中）
+	容器（container）：
+		docker容器技术，独立运行一个或者一组应用，通过镜像来创建
+		启动 停止 删除 基本命令
+	仓库(repository):
+		仓库存放镜像得地方
+		
+二：安装docker ubuntu16.04（参考docker官方地址https://docs.docker.com/engine/install/ubuntu/）
+	1,
+		sudo apt-get remove docker docker-engine docker.io containerd runc
+	2,
+		sudo apt-get update
+	3,
+		sudo apt-get install \
+		apt-transport-https \
+		ca-certificates \
+		curl \
+		gnupg-agent \
+		software-properties-common	
+	4,
+		curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+	5,
+		sudo apt-key fingerprint 0EBFCD88
+	6,	配置镜像	
+		sudo add-apt-repository \
+	   "deb [arch=amd64] http://mirrors.aliyun.com/docker-ce/linux/ubuntu $(lsb_release -cs) stable \
+	   $(lsb_release -cs) \
+	   stable"
+   7，安装docker
+   		sudo apt-get update
+
+		sudo apt-get install docker-ce docker-ce-cli containerd.io
+
+	8, docker version验证是否成功
+
+三，配置阿里云镜像
+	esc --> 容器镜像服务-->配置镜像加速器
+		选择对应版本执行下述命令
+		sudo mkdir -p /etc/docker
+
+		sudo tee /etc/docker/daemon.json <<-'EOF'
+		{
+		  "registry-mirrors": ["https://0cgkxyo8.mirror.aliyuncs.com"]
+		}
+		EOF
+
+		sudo systemctl daemon-reload
+
+		sudo systemctl restart docker
+
+四 ，
+	1，docker操作
+		systemctl run docker/systemctl stop docker/systemctl status docker/sudo systemctl restart docker			
+	3，运行镜像
+		docker run hello-world
+	4，镜像常用命令
+		docker version
+		docker info
+		docker --help 
+		docker images [镜像名称]
+		docker images --help 可以查看带哪些参数
+		docker search [镜像名称]  搜索镜像
+		docker search [镜像名称] --filter=STARS=3000
+		docker pull [镜像名称] 默认是latest最近版本
+		docker pull [镜像名称]:5.7
+		docker rmi -f [镜像id] 强制删除
+		docker rmi -f $(docker images -aq) 批量删除 $:代表参数
+	5，容器常用命令
+		有镜像才可以创建容器
+		eg:以centos为例
+			1，docker pull centos 下载
+			2，docker run [可选参数] image
+				参数说明
+				-name="Name" 容器名字 tomcat01 tomcat02用来区分容器
+				-d			 后台方式运行
+				-it			 使用交互方式运行，可进入容器查看
+				-p			 指定容器端口 -p 8080:8080
+					-p ip:主机端口：容器端口
+					-p 主机端口：容器端口(常用)
+					-p 容器端口
+				-P			随机指定端口
+		    3，测试，启动并进入容器
+				docker run -it centos /bin/bash
+			4, 退出容器
+				exit 停止容器的退出，ctrl+P+Q后台运行退出
+			5, 列出所有运行容器
+				docker ps [可选参数]
+					-a 列出所有容器
+					-q 列出容器id
+					-n=? 最近运行的容器
+				docker ps 列出正在运行的容器
+				docker ps -a 列出曾经运行的容器
+			6, 删除
+				docker rm [容器id] （不能删除正在运行的程序）
+				docker rm -f [容器id] 强制删除
+				docker rm $(docker ps -aq) 批量删除容器
+				docker ps -a -q | xargs docker rm 批量删除所有容器
+			7，docker stop [容器id] 停止容器
+			   docker start [容器id] 启动一个run之后镜像容器
+			   docker restart [容器id] 重启容器
+			   docker kill [容器id]  强制停止一个容器
+	6, 常用其他命令
+		启动centos 如果是-d运行，前台要启一个进程，不然启动就停止
+		跟一段shell脚本
+		docker run -d centos /bin/bash -c "while true;do echo lckstudy;sleep 1; done"
+		docker logs -tf [容器id] 显示所有日志
+		docker logs -tf --tail n [容器id] 显示最近n条的日志
+		docker inspect [容器id] 查看容器运行的信息
+		docker top [容器id] 查看容器运行进程相关信息
+		docker exec -it [容器id] /bin/bash 进入正在运行的容器，可以对容器进行一些配置
+		docker attach [容器id] 进入正在执行的终端
+		docker cp 容器id:/路径 /主机路径  从容器内部拷贝到主机
+			docker cp 25cf8d1da79a:/home/lck.java /home
+	7，练习
+		1，安装nginx
+			docker search nginx
+			docker pull nginx
+			docker run -d(后台运行) --name(自定义一个名字) -p 映射宿主机端口跟容器端口 镜像名称
+			docker run -d --name nginx01 -p 3389:80 nginx
+			

@@ -1,0 +1,23 @@
+1，生成密钥密文
+https://www.cnblogs.com/xiuxingzhe/p/9303278.html
+
+2，修改远程地址
+git remote  set-url  origin [url]
+
+3，先删除后增加
+git remote rm origin
+git remote add origin [url]
+
+4，新建分支
+	1，切换到基础分支，主分支
+		git checkout master
+	2, 创建并切换到新分支
+		git checkout -b new_branch_name  origin/new_branch_name(可以看到切换到新建分支上了)
+		（前提是没有代码要更新了）
+	3, 更新代码并提交
+		git add .
+		git commit -m "init new branch"
+		git push origin new_branch_name
+	4, 登录git 可以看到
+
+

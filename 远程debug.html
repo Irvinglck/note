@@ -1,0 +1,8 @@
+第一 启动远程jar
+	java -Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=9214,suspend=n -jar demo_stu-0.0.1-SNAPSHOT.jar
+	注意要绑定一个跟本地socket通信端口 9214
+第二 idea配置
+	https://blog.csdn.net/zhuzj12345/article/details/80202558
+	在编辑-->remote 绑定远程主机+远程端口9214
+第三，debug 启动Unnamed 
+第四，调用远程服务，看本地debug
