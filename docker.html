@@ -122,4 +122,58 @@ docker学习
 			docker pull nginx
 			docker run -d(后台运行) --name(自定义一个名字) -p 映射宿主机端口跟容器端口 镜像名称
 			docker run -d --name nginx01 -p 3389:80 nginx
-			
+		2，安装tomcat
+			docker pull tomcat
+			由于tomcat是瘦身版的  需要将webapps.dist 复制到webapps目录下
+			docker run -d --name tomcat01 -p 8888:8080 tomcat
+		3, 安装es+kibana
+			docker search elasticsearch
+			docker pull elasticsearch
+			docker run -d --name elasticsearch -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" elasticsearch:tag
+			指定内存启动文件
+			docker run -d --name elasticsearch -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" -e ES_JAVA_OPTS="Xms64m Xmx512m" elasticsearch:tag		
+		4, docker stats查看cpu状态
+		5, 安装portainer可视化工具
+			docker run -d -p 9999:9000 \--restart=always -v /var/run/docker.sock:/var/run/docker.sock --privileged=true portainer/portainer
+	8，容器制作成镜像
+		docker commit -m="提交一个描述信息" -a="作者" 容器id 目标镜像名:tag
+		docker commit -m="制作tomcat镜像" -a="lck" [容器id] tomcat_lck:1.0(记得带版本号)
+
+五，docker核心部分
+	1，容器的卷技术
+		docker run -it -v 宿主机目录:容器目录
+		docker run -it -v /home/test:/home centos /bin/bash
+	安装mysql挂在数据库文件
+		docker run -d --name mysql01 -p 3389:3306 -v /home/mysql/conf:/etc/mysql/conf.d -v/home/mysql/data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=123456 mysql:5.7
+		
+		-v：宿主机目录:容器目录(可以挂在多个)
+		-e: mysql需要配置密码才可以连接
+		-d: 后台运行
+		--name: 容器名字
+	2，具名挂载&匿名挂载
+		docker volume ls 查看所有挂在
+		匿名挂在不指定宿主机的目录的挂在情况
+		docker run -d --name nginx01 -v /etc/nginx nginx:ro
+		具名挂载,随机指定挂在名
+		docker run -d --name nginx01 -v lck:/etc/nginx nginx:rw
+		指定宿主机路径的挂在
+		docker run -d --name nginx01 -v /home:/etc/nginx nginx
+		可以通过
+		docker volume inspect 挂在名（可以通过docker volume ls查看 ）
+		
+		ro:readonly 容器内部只读（只能通过宿主机来操作写功能）
+		rw:容器内可读可写
+	3，数据卷之Dockerfile创建镜像
+		一个centos为例
+		1,touch Dockerfile
+		2,编辑文件vim
+			FROM centos
+			volume ["volume1","volume2"] (匿名挂在)
+			CMD echo "----end----"
+			CMD /bin/bash
+		3,编译
+			docker build -f /Dcokerfile全路径/Dockerfile -t centos1.0(打包之后的镜像名) . (一定不能丢表示当前路径)
+		4，运行
+			docker run -it centos:1.0 /bin/bash
+
+	4，容器之间的挂载
