@@ -177,3 +177,20 @@ docker学习
 			docker run -it centos:1.0 /bin/bash
 
 	4，容器之间的挂载
+		centos为例子
+		docker run -it --name centos01 centos(image镜像名称)
+		docker run -it --name --volumes-from centos01(要挂载的镜像) centos(image镜像名称)
+		--volumes-from 容器id 表示容器之间的挂载
+六，DockerFile
+	1,编写一个dockerfile文件
+	2，docker build 构建一个镜像
+	3，docker run 运行镜像
+	4，docker push 发布镜像（DockerHub,阿里云镜像仓库）
+	基础知识
+	1，每个保留的关键字（指令）都必须是大写字母
+	2，执行从上到下执行
+	3，#表示注释
+	4，每一个指令都会提交一个新镜像层，并提交
+	5，DockerFile，构建文件定义了一切步骤，源代码
+	6，DockerImages,通过DokcerFile来生成镜像，最终发布和运行产品
+	7，Docker容器，容器就是镜像运行起来提供服务
