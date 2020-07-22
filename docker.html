@@ -43,7 +43,7 @@ docker学习
 		选择对应版本执行下述命令
 		sudo mkdir -p /etc/docker
 
-		sudo tee /etc/docker/daemon.json <<-'EOF'
+		sudo tee /etc/docker/daemon.json <<-'EOF'   --fdffafafasfa这个尖括号没有任何意义，为了不变色>
 		{
 		  "registry-mirrors": ["https://0cgkxyo8.mirror.aliyuncs.com"]
 		}
@@ -182,15 +182,98 @@ docker学习
 		docker run -it --name --volumes-from centos01(要挂载的镜像) centos(image镜像名称)
 		--volumes-from 容器id 表示容器之间的挂载
 六，DockerFile
-	1,编写一个dockerfile文件
-	2，docker build 构建一个镜像
-	3，docker run 运行镜像
-	4，docker push 发布镜像（DockerHub,阿里云镜像仓库）
+		1,编写一个dockerfile文件
+		2，docker build 构建一个镜像
+		3，docker run 运行镜像
+		4，docker push 发布镜像（DockerHub,阿里云镜像仓库）
 	基础知识
-	1，每个保留的关键字（指令）都必须是大写字母
-	2，执行从上到下执行
-	3，#表示注释
-	4，每一个指令都会提交一个新镜像层，并提交
-	5，DockerFile，构建文件定义了一切步骤，源代码
-	6，DockerImages,通过DokcerFile来生成镜像，最终发布和运行产品
-	7，Docker容器，容器就是镜像运行起来提供服务
+		1，每个保留的关键字（指令）都必须是大写字母
+		2，执行从上到下执行
+		3，#表示注释
+		4，每一个指令都会提交一个新镜像层，并提交
+		5，DockerFile，构建文件定义了一切步骤，源代码
+		6，DockerImages,通过DokcerFile来生成镜像，最终发布和运行产品
+		7，Docker容器，容器就是镜像运行起来提供服务
+	DockerFile命令
+		From:				#镜像基础，一切从这里开始构建 
+		MAINTAINER:			#镜像是谁写的 姓名+邮箱
+		RUN:				#镜像构建的时候需要运行的命令
+		ADD:				#步骤，tomcat镜像，这个tomcat压缩包，添加内容用
+		WORKDIR:			#镜像的工作目录
+		VOLUME:				#挂载的目录
+		EXPOSE:				#暴露的端口
+		CMD:				#指定这个容器的时候要运行的命令，只有最后一个生效，可被替代
+		ENTRYPOINT:			#指定这个容器的时候要运行的命令，可以追加
+		ONBUILD:			#当构建一个被继承的DockerFile这个时候就会运行ONBUILD的指令，触发指令
+		COPY:				#类似ADD，将我们文件拷贝到镜像中
+		ENV:				#构建的时候设置环境变量
+	通过DockerFile制作centos自定义镜像
+		FROM centos
+		MAINTAINER lck<lck@qq.com>
+
+		ENV MYPATH /usr/local
+		WORKDIR $MYPATH
+
+		RUN yum -y install vim
+		RUN yum -y install net-tools
+
+		EXPOSE 80
+
+		CMD echo $MYPATH
+		CMD echo -------lck-create-succussful-----
+		CMD /bin/bash
+		构建镜像
+		docker build -f Dockerfile -t my_cnetos .
+	制作tomcat+jdk+centos镜像
+
+七 , dokcer hub.docker&阿里云
+	hub.docker官网注册账号
+	命令行登录
+		docker login -u userNmae -p password
+	镜像打标签
+		docker tag [目标镜像名/镜像id]  注册的用户名/打成镜像名:tag
+		docker tag tomcat_lck:1.0 userName/tomcat_lck:2.0
+	上传
+		docker push 注册的用户名/打成镜像名:tag
+		docker push userName/tomcat_lck:2.0
+
+八，docker网络
+	1,eg:
+		运行一个镜像
+			docker run -d --name tomcat01 tomcat
+		查看容器ip信息
+			docker exec -it tomcat01 ip addr
+		docker容器之间的ping
+			进入容器tomcat01 ping 另外一个ip
+		   docker exec -it tomcat01 ping 172.17.0.3
+	2,容器通过网名互联link(不推荐使用)
+		docker run -d --name tomcat04 --link tomcat03 tomcat
+	3,自定义网络
+		docker network 查看docker网络
+		创建一个docker 网络
+			docker network create --driver bridge --subnet 192.168.0.0/16 --gateway 192.168.0.1 mynet
+			--driver bridge :桥接模式
+			--subnet		:子网掩码 /16表示可以255*255-1种可能
+			--gateway		:网关
+			mynet			:表示自定义名字
+		启动一个容器验证一下容器互通情况
+			docker run -d --name tomcat_net_01 --net mynet tomcat
+			--net mynet :表示网络
+			docker run -d --name tomcat_net_02 --net mynet tomcat
+		验证联通情况
+			docker exec -it tomcat_net_01 ping tomcat_net_02
+			docker exec -it tomcat_net_02 ping tomcat_net_01
+	4，docker容器连接一个网络
+		docker network connect 网络名称 容器id
+		docker network connect mynet tomcat_my_net
+
+九，redis集群部署
+
+十，springboot镜像制作
+	1，架构springboot项目
+	2，打包应用
+	3，编写dockerfile
+	4，构建镜像 docker build -f dockerfile -t lck_springboot .
+	5, 发布运行 docker run -d --name springboot_pack lck_springboot	
+		
+	
