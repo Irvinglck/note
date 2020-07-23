@@ -300,5 +300,12 @@ docker学习
 	3，编写dockerfile
 	4，构建镜像 docker build -f dockerfile -t lck_springboot .
 	5, 发布运行 docker run -d --name springboot_pack lck_springboot	
+		发布的时候只需要dockerfile文件跟jar包即可
+		dockerfile
+			FROM java:8
+			COPY *.jar /app.jar
+			CMD ["--server.port=8080"]
+			EXPOSE 8080
+			ENTRYPOINT ["java","-jar","/app.jar"]
 		
 	
