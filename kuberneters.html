@@ -1,0 +1,41 @@
+1，概念pod, 控制器类型，k8s网络通讯模式
+2，构建k8s集群
+3，资源清单的语法，编写pod,掌握pod的生命周期，
+4，pod控制器，掌握各种控制器的特点以及使用方式
+5，服务注册与发现，掌握原理及构建方式
+6，存储，掌握多种存储类型的特点，并且能够在不通环境中选择合适的存储方案
+7，掌握调度器原理，能够根据要求把pod定义到想要的节点运行
+8，安全：集群认证，鉴权，访问控制，原理及其流程
+9，EHML: linux yum 掌握HEML原理 HELM模板自定义 HELM部署常用的一些插件
+10，修改kubeadm 达到证书可用期限为10年 能够构建高可用的Kubernetes集群
+
+一，
+	1，组件概念
+		kubectl
+		web ui
+		api server 
+		replicaton controllor
+		sheduler 
+		etcd
+		kubelet
+		kube proxy
+		COREDNS: 可以给集群中的SVC创建一个域名IP的对应关系解析
+		DASHBOARD: 给K8S集群提供一个B/S结构访问体系
+		INGRESS CONTROLLER: 官方只能实现四层代理，INGRESS可以实现七层代理
+		FEDERATION: 提供一个可以跨集群中心多k8s统一管理功能
+		PROMETHEUS: 提供k8s集群监控的能力
+		ELK: 提供k8s集群日志统一分析介入平台
+		高可用集群数量最好奇数
+	2，POD
+		ReplicaSet：管理POD用户定义的分片数量
+		deployment：自动管理ReplicaSet-->ReplicaSet(取代replication controllor)支持集合式的selector
+		StatefulSet：解决deployment&ReplicaSet的无状态服务解决方案
+					稳定的持久化存储
+					稳定的网络标志
+					有序部署
+					有序收缩
+	   DaemonSet: node加入集群时，会为他们新增一个pod,node被从集群移除，这些node会被回收，删除DaemonSet
+	  			会删除它创建的所有的pod
+				可以在这上面运行一些守护进程
+	   Job,Cron Job: 定时任务
+	3，网络通讯方式POD
