@@ -1,14 +1,14 @@
-**一，JUC概述**
+**#1，JUC概述**
 
- 	1，java 有俩个线程 main&GC
+​			1.1，java 有俩个线程 main&GC
 
-​        2，new Thread().start();java是没有权限开启线程的，java会通过native调用本地方法
+​       	1.2，new Thread().start();java是没有权限开启线程的，java会通过native调用本地方法
 
-​	3，//获取CPU核数//CPU密集型 IO密集型System.out.println(Runtime.getRuntime().availableProcessors());
+​			1.3，//获取CPU核数//CPU密集型 IO密集型System.out.println(Runtime.getRuntime().availableProcessors());
 
-**二，常用对象**
+**#二，常用对象**
 
-​	1，CopyOnWriteArrayList 并发包线程安全
+​	##1，CopyOnWriteArrayList 并发包线程安全
 
 ```java
 public static void main(String[] args) {
@@ -170,3 +170,112 @@ public static void main(String[] args) {
 ```
 
 **五，读写锁**
+
+​	ReentrantReadWriteLock
+
+​	独占锁（写锁）一次只能有一个线程操作
+
+​	共享锁（读锁）多个线程可以同时操作
+
+​	
+
+```java
+public class ReadWriteLock {
+    public static void main(String[] args) {
+        Data1 data1=new Data1();
+        for (int i = 1; i < 20; i++) {
+            final int temp=i;
+            new Thread(()->{
+                data1.setMap(""+temp,"value->"+temp);
+            },Thread.currentThread().getName()).start();
+        }
+        for (int i = 1; i < 20; i++) {
+            final int temp=i;
+            new Thread(()->{
+                data1.getMap(""+temp);
+            },Thread.currentThread().getName()).start();
+        }
+    }
+}
+
+class Data1 {
+    private volatile Map<String, Object> map = new HashMap<>();
+    //读写锁，写入操作要加锁
+    java.util.concurrent.locks.ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+
+    public void setMap(String key,Object value){
+
+        try {
+            readWriteLock.writeLock().lock();
+            System.out.println(Thread.currentThread().getName()+"--写入操作开始"+key);
+            map.put(key,value);
+            System.out.println("写入操作结束");
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            readWriteLock.writeLock().unlock();
+        }
+    }
+
+    public void getMap(String key){
+        //读取操作可以多个线程同时操作
+        try {
+            readWriteLock.readLock().lock();
+            System.out.println(Thread.currentThread().getName()+"--读操作开始"+key);
+            map.get(key);
+            System.out.println("读操作结束ok");
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            readWriteLock.readLock().unlock();
+        }
+
+    }
+
+}
+```
+
+六，队列
+
+​	1，概述
+
+​			Deque 双边队列，BlockingQueue阻塞队列，AbstractQueue非阻塞队列
+
+<img src="D:\文档\学习\JUC\queue.png" style="zoom:60%;" />
+
+ 	2，添加，移除
+
+| 方式         | 抛出异常 | 有返回值,不抛出异常 | 阻塞 等待 | 超时等待                |
+| ------------ | -------- | ------------------- | --------- | ----------------------- |
+| 添加         | add      | offer               | put       | offer(el,时长,时间级别) |
+| 移除         | remove   | poll                | take      | poll（时长,时间级别）   |
+| 判断队列首位 | element  | peek                | -         | -                       |
+
+```java
+    static void test1(){
+        BlockingQueue<Object> arrayBlockingQueue = new ArrayBlockingQueue<>(3);
+        arrayBlockingQueue.add("a");
+        arrayBlockingQueue.add("b");
+        arrayBlockingQueue.add("c");
+        System.out.println("-----------------");
+        System.out.println(arrayBlockingQueue.remove());
+        System.out.println(arrayBlockingQueue.remove());
+        System.out.println(arrayBlockingQueue.remove());
+//        arrayBlockingQueue.remove();
+    }
+```
+
+```java
+private static void test2() {
+    BlockingQueue abq=new ArrayBlockingQueue<String>(3);
+    abq.offer("ack");
+    abq.offer("ack2");
+    abq.offer("ack");
+    System.out.println("------------");
+    System.out.println(abq.poll());
+    System.out.println(abq.poll());
+    System.out.println(abq.poll());
+    System.out.println(abq.poll());
+    System.out.println(abq.peek());
+}
+```
